@@ -16,7 +16,7 @@ save = True
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
-N = 100000
+N = 1000
 rho = 0.95 # overlap, not overlap squared!
 k = 100
 
@@ -48,6 +48,9 @@ M = np.sum(rho_arr**2 >= rho**2)
 ## count number of entries in set D_k 
 D = np.sum( (rho_arr**2 >= rho**2- 2 * c(k)/ np.sqrt(k)) * (rho_arr**2 < rho**2) )
 delta = D / N
+
+## get epsilon 
+epsilon = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
 
 ## get number of iterations 
 s = int(np.pi /4 * np.sqrt(N/M))
@@ -124,6 +127,7 @@ plt.close()
 
 plt.figure(figsize=figsize)
 plt.plot(s_arr, s_arr * error[1], label=r'$s\Vert \mathcal{G} - \mathcal{G}^* \Vert_\Psi$', color="black", ls="--")
+plt.plot(s_arr, s_arr * 2 * np.sqrt(delta + epsilon), label=r'$s \delta  $', color="gray", ls="--")
 plt.plot(s_arr, error, label=r'$\Vert \mathcal{G}^s - \mathcal{G}^{*s} \Vert_\Psi$', color="red")
 plt.plot(s_arr, np.abs(P_CSO_marked-P_ideal_marked), label=r'$\vert P - P^* \vert$', color="blue")
 plt.legend(fontsize=fontsize)
