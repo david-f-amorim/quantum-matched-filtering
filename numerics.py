@@ -112,8 +112,8 @@ if show:
 plt.close()
 
 plt.figure(figsize=figsize)
-plt.plot(rho_arr, F_CSO, color="red", label="CSO")
-plt.plot(rho_arr, F_ideal, color="blue", label="ideal")
+plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
+plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
 plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
 plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
