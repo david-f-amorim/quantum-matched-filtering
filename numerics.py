@@ -11,17 +11,17 @@ fontsize=28
 titlesize=32
 ticksize=22
 figsize=(10,10)
-show = True 
+show = True
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 1000
 rho = 0.95 # overlap, not overlap squared!
-k = 100
+k = 1000
 
 def c(k): 
-    return  0 * 0.1 * k**(0.2)
+    return  0.1 * k**(0.2)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -49,12 +49,6 @@ M = np.sum(rho_arr**2 >= rho**2)
 D = np.sum( (rho_arr**2 >= rho**2- 2 * c(k)/ np.sqrt(k)) * (rho_arr**2 < rho**2) )
 delta = D / N
 
-## get epsilon 
-if c(k)!=0:
-    epsilon = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
-else:
-    epsilon=0    
-
 ## get number of iterations 
 s = int(np.pi /4 * np.sqrt(N/M))
 theta = np.arcsin(np.sqrt(M/N))
@@ -69,7 +63,16 @@ for i in np.arange(N):
     sum = 0
     for j in np.arange(j_star):
         sum += comb(k,j)*p_0**j *(1-p_0)**(k-j)
-    F_CSO[i]= 2*sum - 1     
+    F_CSO[i]= 2*sum - 1   
+
+## get actual epsilon (defined as F_CSO at threshold)
+epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
+
+## get epsilon bound
+if c(k)!=0:
+    epsilon_bound = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
+else:
+    epsilon_bound=0    
 
 ## set up coefficient arrays 
 c_ideal = np.ones((N, s+1)) * np.sqrt(1/N)
@@ -119,6 +122,8 @@ plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
 plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
 plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
 plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
+plt.hlines(y=-1+epsilon_actual, xmin=0, xmax=1, linestyles="dashed", colors="gray")
+plt.hlines(y=1-epsilon_actual, xmin=0, xmax=1, linestyles="dashed", colors="gray")
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
 plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
 plt.tick_params(axis="both", labelsize=ticksize)
@@ -131,7 +136,9 @@ if show:
 plt.close()
 
 plt.figure(figsize=figsize)
-plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6)
+hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6)
+plt.vlines(x=-1+epsilon_actual, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+plt.vlines(x=1-epsilon_actual, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
 plt.title(f"Fidelity distribution (N={N}, M={M}, D={D})",fontsize=titlesize)
 plt.tick_params(axis="both", labelsize=ticksize)
@@ -160,7 +167,7 @@ plt.close()
 
 plt.figure(figsize=figsize)
 plt.plot(s_arr, s_arr * error[1], label=r'$s\Vert \mathcal{G} - \mathcal{G}^* \Vert_\Psi$', color="black", ls="--")
-#plt.plot(s_arr, s_arr * 2 * np.sqrt(delta + epsilon), label=r'$s \delta  $', color="gray", ls="--")
+#plt.plot(s_arr, s_arr * 2 * np.sqrt(delta + epsilon_actual), label=r'$s \delta  $', color="gray", ls="--")
 plt.plot(s_arr, error, label=r'$\Vert \mathcal{G}^s - \mathcal{G}^{*s} \Vert_\Psi$', color="red")
 plt.plot(s_arr, np.abs(P_CSO_marked-P_ideal_marked), label=r'$\vert P - P^* \vert$', color="blue")
 plt.legend(fontsize=fontsize)
