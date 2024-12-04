@@ -21,7 +21,7 @@ rho = 0.95 # overlap, not overlap squared!
 k = 100
 
 def c(k): 
-    return  0.1 * k**(0.2)
+    return  0 * 0.1 * k**(0.2)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -50,7 +50,10 @@ D = np.sum( (rho_arr**2 >= rho**2- 2 * c(k)/ np.sqrt(k)) * (rho_arr**2 < rho**2)
 delta = D / N
 
 ## get epsilon 
-epsilon = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
+if c(k)!=0:
+    epsilon = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
+else:
+    epsilon=0    
 
 ## get number of iterations 
 s = int(np.pi /4 * np.sqrt(N/M))
@@ -123,6 +126,20 @@ plt.legend(fontsize=titlesize)
 plt.tight_layout()
 if save:
     plt.savefig(f"fidelity_distribution{pdf_str}", bbox_inches='tight', dpi=500)
+if show:
+    plt.show()
+plt.close()
+
+plt.figure(figsize=figsize)
+plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6)
+plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
+plt.title(f"Fidelity distribution (N={N}, M={M}, D={D})",fontsize=titlesize)
+plt.tick_params(axis="both", labelsize=ticksize)
+plt.yscale("log")
+plt.legend(fontsize=titlesize)
+plt.tight_layout()
+if save:
+    plt.savefig(f"fidelity_hist{pdf_str}", bbox_inches='tight', dpi=500)
 if show:
     plt.show()
 plt.close()
