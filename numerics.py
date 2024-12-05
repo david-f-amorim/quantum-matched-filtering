@@ -17,11 +17,11 @@ pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 1000
-rho = 0.95 # overlap, not overlap squared!
-k = 1000
+rho = 0.15 # overlap, not overlap squared!
+k = 100
 
 def c(k): 
-    return  0.1 * k**(0.2)
+    return  0  * k**(0.4)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -37,7 +37,7 @@ num = np.linspace(0,1,N)
 
 ## define overlap distribution
 def g_dist(x):
-    return np.exp(-x* 5)
+    return np.exp(-x* 100)
 
 ## get distribution of overlaps 
 rho_arr = g_dist(num) 
@@ -66,13 +66,28 @@ for i in np.arange(N):
     F_CSO[i]= 2*sum - 1   
 
 ## get actual epsilon (defined as F_CSO at threshold)
+epsilon_arr = np.empty(N) 
+
+for i in np.arange(N):
+    p_0 = 0.5 * (1+ rho_arr[i]**2)
+    sum = 0
+    for j in np.arange(int(c(k)/np.sqrt(k))):
+        sum += comb(k,j_star + j)*p_0**(j_star + j) *(1-p_0)**(k-j_star - j)
+    epsilon_arr[i]= 2 *(1 -sum)  
+
+print(epsilon_arr)
+
 epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
+
+print(epsilon_actual)
 
 ## get epsilon bound
 if c(k)!=0:
     epsilon_bound = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
 else:
     epsilon_bound=0    
+
+print(epsilon_bound)
 
 ## set up coefficient arrays 
 c_ideal = np.ones((N, s+1)) * np.sqrt(1/N)
@@ -136,7 +151,7 @@ if show:
 plt.close()
 
 plt.figure(figsize=figsize)
-hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6)
+hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6, align="mid")
 plt.vlines(x=-1+epsilon_actual, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.vlines(x=1-epsilon_actual, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
