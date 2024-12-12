@@ -12,19 +12,19 @@ fontsize=28
 titlesize=32
 ticksize=22
 figsize=(10,10)
-show = False
+show = True
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 1000
-rho = 0.85 # overlap, not overlap squared!
-k = 100
+rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
+k = 500
 
-std = 0.35  #0.06 # std of overlap distribution (assumed to be Gaussian with zero mean)
+std = 0.33 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
 def c(k): 
-    return  0.  * k**(0.4)
+    return  0.4  * k**(0.4)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -49,7 +49,7 @@ rho_arr = np.sort(rho_arr)
 for i in np.arange(N):
     if rho_arr[i]>1:
         rho_arr[i]=1
-        
+
 if np.sum(rho_arr > 1):
     print("\nUnphysical overlap (>1). Aborting.\n")
     sys.exit() 
@@ -155,6 +155,7 @@ plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
 plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
 plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
+plt.xlim(0, np.min(np.array([1,np.max(rho**2*1.2)])))
 plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
 plt.tick_params(axis="both", labelsize=ticksize)
 plt.legend(fontsize=titlesize)
@@ -166,7 +167,7 @@ if show:
 plt.close()
 
 plt.figure(figsize=figsize)
-hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"], histtype="barstacked", bins=20, rwidth=0.6, align="mid")
+hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid") #, histtype="barstacked")
 plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
@@ -214,7 +215,7 @@ if show:
 plt.close()
 
 plt.figure(figsize=figsize)
-plt.plot(s_arr, 1 - (1 - P_failure[1])**s_arr, label=r'$ (P_T^{(1)})^s$', color="black", ls="--")
+plt.plot(s_arr, 1 - (1 - P_failure[1])**s_arr, label=r'$ 1 -(1-P_T^{(1)})^s$', color="black", ls="--")
 plt.plot(s_arr, P_failure, label=r'$P_T^{(s)}$', color="red")
 plt.legend(fontsize=fontsize)
 plt.tick_params(axis="both", labelsize=ticksize)
