@@ -12,19 +12,19 @@ fontsize=28
 titlesize=32
 ticksize=22
 figsize=(10,10)
-show = True
+show =False
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
-N = 1000
-rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
-k = 500
+N = 10000
+rho = 0.15 # realistic: 0.15 ;  overlap, not overlap squared!
+k = 100
 
-std = 0.33 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
+std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
 def c(k): 
-    return  0.4  * k**(0.4)
+    return  0 * k**(0.4)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -71,7 +71,7 @@ theta = np.arcsin(np.sqrt(M/N))
 ## print relevant info 
 
 print("----------------------------------")
-print(f"M/N:\t{M/N: .3f}")
+print(f"M/N:\t{M/N: .3e}")
 print(f"s: \t{s}")
 
 ## get ideal Grover fidelities 
@@ -134,18 +134,21 @@ s_arr = np.arange(s+1)
 
 plt.figure(figsize=figsize)
 hist = plt.hist(rho_arr**2, color="blue")
-plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black", label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
+#plt.plot(np.linspace(0,1,N)**2,np.max(hist[0])* np.exp(- (np.linspace(0,1,N) / std)**2/2 ), color="gray")
+#plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black", label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
 plt.vlines(x=rho**2, ymin=0, ymax=np.max(hist[0]), colors="black", label=r'$\rho_\text{thr}$')
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
-plt.title(f"Overlap distribution (N={N}, M={M}, D={D})",fontsize=titlesize)
+plt.title(f"Overlap distribution (N={N}, M={M})",fontsize=titlesize)
 plt.tick_params(axis="both", labelsize=ticksize)
-#plt.legend(fontsize=titlesize)
+plt.legend(fontsize=titlesize)
 plt.tight_layout()
 if save:
     plt.savefig(f"overlap_distribution{pdf_str}", bbox_inches='tight', dpi=500)
 if show:
     plt.show()
 plt.close()
+
+sys.exit()
 
 plt.figure(figsize=figsize)
 plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
