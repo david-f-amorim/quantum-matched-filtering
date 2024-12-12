@@ -1,6 +1,7 @@
 import numpy as np 
+import sys
 import matplotlib.pyplot as plt 
-from scipy.special import comb, erfc 
+from scipy.special import comb, erfc, betainc  
 from matplotlib import rcParams
 
 rcParams['mathtext.fontset'] = 'stix' 
@@ -11,39 +12,53 @@ fontsize=28
 titlesize=32
 ticksize=22
 figsize=(10,10)
-show = True
+show = False
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 1000
-rho = 0.85 #0.15 # overlap, not overlap squared!
+rho = 0.85 # overlap, not overlap squared!
 k = 100
 
+std = 0.35  #0.06 # std of overlap distribution (assumed to be Gaussian with zero mean)
+
 def c(k): 
-    return  0.3  * k**(0.4)
+    return  0.  * k**(0.4)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
 if j_star ==0:
-    print('WARNING: j_star=0')
+    print('\nWARNING: j_star=0\n')
 elif j_star==k:
-    print('WARNING: j_star=k')
-if rho**2- 2 * c(k)/ np.sqrt(k) <0:
-    print('WARNING: c(k)/sqrt(k) too large')    
+    print('\nWARNING: j_star=k\n')
+if j_star <0:
+    print('\nNegative j_star. Aborting.\n')
+    sys.exit()
 
-## uniformly sample numbers 
-num = np.linspace(0,1,N)
+print("==================================")
+print(f"k:\t{k}")
+print(f"j_star:\t{j_star}")
 
-## define overlap distribution
-def g_dist(x):
-    return np.exp(-x* 10)
+## randomly sample overlaps 
+rng = np.random.default_rng(seed = 12345678)
+rho_arr = np.abs(rng.normal(size=N, scale=std)) 
+rho_arr = np.sort(rho_arr)
 
-## get distribution of overlaps 
-rho_arr = g_dist(num) 
+## make sure overlaps less than one (in case std is large)
+for i in np.arange(N):
+    if rho_arr[i]>1:
+        rho_arr[i]=1
+        
+if np.sum(rho_arr > 1):
+    print("\nUnphysical overlap (>1). Aborting.\n")
+    sys.exit() 
 
 ## count number of marked entries 
 M = np.sum(rho_arr**2 >= rho**2)
+if M == 0:
+    print("\nNo matches. Aborting.\n")
+    sys.exit() 
 
 ## count number of entries in set D_k 
 D = np.sum( (rho_arr**2 >= rho**2- 2 * c(k)/ np.sqrt(k)) * (rho_arr**2 < rho**2) )
@@ -53,6 +68,12 @@ delta = D / N
 s = int(np.pi /4 * np.sqrt(N/M))
 theta = np.arcsin(np.sqrt(M/N))
 
+## print relevant info 
+
+print("----------------------------------")
+print(f"M/N:\t{M/N: .3f}")
+print(f"s: \t{s}")
+
 ## get ideal Grover fidelities 
 F_ideal = np.ones(N)-2* (rho_arr**2 >= rho**2)
 
@@ -60,11 +81,8 @@ F_ideal = np.ones(N)-2* (rho_arr**2 >= rho**2)
 F_CSO = np.empty(N) 
 for i in np.arange(N):
     p_0 = 0.5 * (1+ rho_arr[i]**2)
-    sum = 0
-    for j in np.arange(j_star):
-        sum += comb(k,j)*p_0**j *(1-p_0)**(k-j)
-    F_CSO[i]= 2*sum - 1   
-
+    F_CSO[i] = 2 * (1 - betainc(j_star,k-j_star +1, p_0) ) -1
+ 
 ## get actual epsilon (defined as F_CSO at threshold)
 epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
 
@@ -101,6 +119,15 @@ for i in np.arange(s+1):
     P_ideal_marked[i] = np.sum(np.abs(c_ideal[:,i] * (rho_arr**2 >= rho**2))**2)
     P_CSO_marked[i] = np.sum(np.abs(c_CSO_norm[:,i] * (rho_arr**2 >= rho**2))**2)
 
+Pi = P_CSO_marked*(1 - P_failure)
+
+# print relevant info 
+
+print("----------------------------------")
+print(f"P*_S:\t{P_CSO_marked[-1]:.3f}")
+print(f"Pi:\t{Pi[-1]:.3f}")
+print(f"P_S:\t{P_ideal_marked[-1]:.3f}")
+print("==================================")
 
 ######
 s_arr = np.arange(s+1)
@@ -157,7 +184,7 @@ plt.close()
 plt.figure(figsize=figsize)
 plt.plot(s_arr, P_ideal_marked, label=r"$P_S$", color="blue")
 plt.plot(s_arr, P_CSO_marked, label=r"$P_S^*$", color="red")
-plt.plot(s_arr, P_CSO_marked*(1 - P_failure), label=r'$\Pi$', color="green")
+plt.plot(s_arr, Pi, label=r'$\Pi$', color="green")
 plt.legend(fontsize=fontsize)
 plt.tick_params(axis="both", labelsize=ticksize)
 plt.xlabel("Iteration",fontsize=fontsize)
