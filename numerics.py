@@ -12,19 +12,19 @@ fontsize=28
 titlesize=32
 ticksize=22
 figsize=(10,10)
-show =False
+show =True
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 10000
-rho = 0.15 # realistic: 0.15 ;  overlap, not overlap squared!
+rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
 def c(k): 
-    return  0 * k**(0.4)
+    return 0 *k**(0.2)
 
 j_star = int(0.5 * k * (1+ rho**2) - 0.5 * c(k) * np.sqrt(k))
 
@@ -78,10 +78,8 @@ print(f"s: \t{s}")
 F_ideal = np.ones(N)-2* (rho_arr**2 >= rho**2)
 
 ## get CSO fidelities
-F_CSO = np.empty(N) 
-for i in np.arange(N):
-    p_0 = 0.5 * (1+ rho_arr[i]**2)
-    F_CSO[i] = 2 * (1 - betainc(j_star,k-j_star +1, p_0) ) -1
+p_0_arr = 0.5 * (1+ rho_arr**2)
+F_CSO = 2 * (1 - betainc(j_star,k-j_star +1, p_0_arr) ) -1
  
 ## get actual epsilon (defined as F_CSO at threshold)
 epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
@@ -132,10 +130,11 @@ print("==================================")
 ######
 s_arr = np.arange(s+1)
 
+
 plt.figure(figsize=figsize)
 hist = plt.hist(rho_arr**2, color="blue")
 #plt.plot(np.linspace(0,1,N)**2,np.max(hist[0])* np.exp(- (np.linspace(0,1,N) / std)**2/2 ), color="gray")
-#plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black", label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
+plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black") #, label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
 plt.vlines(x=rho**2, ymin=0, ymax=np.max(hist[0]), colors="black", label=r'$\rho_\text{thr}$')
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
 plt.title(f"Overlap distribution (N={N}, M={M})",fontsize=titlesize)
@@ -148,15 +147,13 @@ if show:
     plt.show()
 plt.close()
 
-sys.exit()
-
 plt.figure(figsize=figsize)
 plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
 plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
 plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
 plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
-plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
-plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
+#plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
+#plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
 plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
 plt.xlim(0, np.min(np.array([1,np.max(rho**2*1.2)])))
 plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
@@ -169,12 +166,13 @@ if show:
     plt.show()
 plt.close()
 
+
 plt.figure(figsize=figsize)
 hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid") #, histtype="barstacked")
-plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
-plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+#plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+#plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
 plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
-plt.title(f"Fidelity distribution (N={N}, M={M}, D={D})",fontsize=titlesize)
+plt.title(f"Fidelity distribution (N={N}, M={M})",fontsize=titlesize)
 plt.tick_params(axis="both", labelsize=ticksize)
 plt.yscale("log")
 plt.legend(fontsize=titlesize)
@@ -204,8 +202,8 @@ plt.figure(figsize=figsize)
 plt.plot(s_arr, s_arr * error[1], label=r'$s\Vert \mathcal{G} - \mathcal{G}^* \Vert_\Psi$', color="black", ls="--")
 #plt.plot(s_arr, s_arr * 2 * np.sqrt(delta + epsilon_erfc), label=r'$s 2 \sqrt{\epsilon + \Delta}  $', color="gray", ls="--")
 plt.plot(s_arr, error, label=r'$\Vert \mathcal{G}^s - \mathcal{G}^{*s} \Vert_\Psi$', color="red")
-plt.plot(s_arr, -P_CSO_marked+P_ideal_marked, label=r'$P_S - P_S^* $', color="blue")
-plt.plot(s_arr, -P_CSO_marked*(1 - P_failure)+P_ideal_marked, label=r'$P_S - \Pi $', color="green")
+plt.plot(s_arr, -P_CSO_marked+P_ideal_marked, label=r'$\Delta P_S$', color="blue")
+plt.plot(s_arr, -P_CSO_marked*(1 - P_failure)+P_ideal_marked, label=r'$\Delta \Pi$', color="green")
 plt.legend(fontsize=fontsize)
 plt.tick_params(axis="both", labelsize=ticksize)
 plt.xlabel("Iteration",fontsize=fontsize)
