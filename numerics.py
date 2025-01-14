@@ -125,7 +125,14 @@ print("----------------------------------")
 print(f"P*_S:\t{P_CSO_marked[-1]:.3f}")
 print(f"Pi:\t{Pi[-1]:.3f}")
 print(f"P_S:\t{P_ideal_marked[-1]:.3f}")
+print(f"P_T:\t{P_failure[-1]:.3f}")
+
+print("----------------------------------")
+print(f"Delta P_S:\t{P_ideal_marked[-1]-P_CSO_marked[-1]:.3f}")
+print(f"Delta Pi:\t{P_ideal_marked[-1]-Pi[-1]:.3f}")
 print("==================================")
+
+
 
 ######
 s_arr = np.arange(s+1)
