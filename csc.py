@@ -6,7 +6,7 @@ from matplotlib import rcParams
 #----- VARIABLES -----
 
 k = 100
-rho = 0.15**2
+rho = 0.1
 
 def theta(j): 
     j_star = int(0.5 * k * (1+ rho))
@@ -15,7 +15,7 @@ def theta(j):
         return np.pi 
     else:
         return 0
-    #return j 
+
 
 #----- CONTROLS -----
 
@@ -30,8 +30,8 @@ probs = 0.5 * (1 + overlaps)
 fidelities = np.zeros(N, dtype="complex")
 
 for i in np.arange(N):
-    for j in np.arange(k):
-        fidelities[i]+= np.exp(1j * theta(j)) * stats.binom.pmf(j,k,probs[i])
+    for j in np.arange(k+1):
+        fidelities[i]+=np.exp(1j * theta(j)) * stats.binom.pmf(j,k,probs[i])
 
 F = np.abs(fidelities)
 arg = np.angle(fidelities)
