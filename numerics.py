@@ -1,7 +1,8 @@
 import numpy as np 
 import sys
 import matplotlib.pyplot as plt 
-from scipy.special import comb, erfc, betainc  
+from scipy import stats
+from scipy.special import erfc, betainc  
 from matplotlib import rcParams
 
 rcParams['mathtext.fontset'] = 'stix' 
@@ -20,6 +21,7 @@ pdf_str=".pdf" if pdf else ""
 N = 10000
 rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
+use_theta1 = True 
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
@@ -35,6 +37,18 @@ elif j_star==k:
 if j_star <0:
     print('\nNegative j_star. Aborting.\n')
     sys.exit()
+
+def theta(j): 
+    q = 0.01
+    j_min =  int(0.5 * k * (1+ rho - q))
+    j_max =  int(0.5 * k * (1+ rho + q))
+
+    if j >= j_max: 
+        return np.pi 
+    elif j <= j_min:
+        return 0
+    else:
+        return np.pi * ( j - j_min)/(q*k)     
 
 print("==================================")
 print(f"k:\t{k}")
@@ -66,7 +80,6 @@ delta = D / N
 
 ## get number of iterations 
 s = int(np.pi /4 * np.sqrt(N/M))
-theta = np.arcsin(np.sqrt(M/N))
 
 ## print relevant info 
 
@@ -79,23 +92,44 @@ F_ideal = np.ones(N)-2* (rho_arr**2 >= rho**2)
 
 ## get CSO fidelities
 p_0_arr = 0.5 * (1+ rho_arr**2)
-F_CSO = 2 * (1 - betainc(j_star,k-j_star +1, p_0_arr) ) -1
- 
-## get actual epsilon (defined as F_CSO at threshold)
-epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
 
-## get epsilon erfc 
-epsilon_erfc = erfc( c(k) / np.sqrt(8))
-
-## get epsilon bound
-if c(k)!=0:
-    epsilon_bound = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
+if use_theta1 == False:
+    F_CSO = 2 * (1 - betainc(j_star,k-j_star +1, p_0_arr) ) -1
 else:
-    epsilon_bound=0    
+    fidelities = np.zeros(N, dtype="complex")
+
+    for i in np.arange(N):
+        for j in np.arange(k+1):
+            fidelities[i]+=np.exp(1j * theta(j)) * stats.binom.pmf(j,k,p_0_arr[i])
+
+    F = np.abs(fidelities)
+    arg = np.angle(fidelities)
+
+    if F[-1]==0:
+        arg[-1]=arg[-2]
+
+    F_CSO = fidelities    
+ 
+if use_theta1 == False:
+    ## get actual epsilon (defined as F_CSO at threshold)
+    epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
+
+    ## get epsilon erfc 
+    epsilon_erfc = erfc( c(k) / np.sqrt(8))
+
+    ## get epsilon bound
+    if c(k)!=0:
+        epsilon_bound = np.sqrt(8/np.pi) * np.exp(-c(k)**2 /8) / c(k)
+    else:
+        epsilon_bound=0    
 
 ## set up coefficient arrays 
 c_ideal = np.ones((N, s+1)) * np.sqrt(1/N)
-c_CSO = np.ones((N, s+1)) * np.sqrt(1/N)
+
+if use_theta1:
+    c_CSO = np.ones((N, s+1), dtype="complex") * np.sqrt(1/N)
+else:
+    c_CSO = np.ones((N, s+1)) * np.sqrt(1/N)    
 
 ## apply operators 
 for i in np.arange(s):
@@ -137,58 +171,58 @@ print("==================================")
 ######
 s_arr = np.arange(s+1)
 
+if use_theta1==False:
+    plt.figure(figsize=figsize)
+    hist = plt.hist(rho_arr**2, color="blue")
+    #plt.plot(np.linspace(0,1,N)**2,np.max(hist[0])* np.exp(- (np.linspace(0,1,N) / std)**2/2 ), color="gray")
+    plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black") #, label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
+    plt.vlines(x=rho**2, ymin=0, ymax=np.max(hist[0]), colors="black", label=r'$\rho_\text{thr}$')
+    plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
+    plt.title(f"Overlap distribution (N={N}, M={M})",fontsize=titlesize)
+    plt.tick_params(axis="both", labelsize=ticksize)
+    plt.legend(fontsize=titlesize)
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"overlap_distribution{pdf_str}", bbox_inches='tight', dpi=500)
+    if show:
+        plt.show()
+    plt.close()
 
-plt.figure(figsize=figsize)
-hist = plt.hist(rho_arr**2, color="blue")
-#plt.plot(np.linspace(0,1,N)**2,np.max(hist[0])* np.exp(- (np.linspace(0,1,N) / std)**2/2 ), color="gray")
-plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black") #, label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
-plt.vlines(x=rho**2, ymin=0, ymax=np.max(hist[0]), colors="black", label=r'$\rho_\text{thr}$')
-plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
-plt.title(f"Overlap distribution (N={N}, M={M})",fontsize=titlesize)
-plt.tick_params(axis="both", labelsize=ticksize)
-plt.legend(fontsize=titlesize)
-plt.tight_layout()
-if save:
-    plt.savefig(f"overlap_distribution{pdf_str}", bbox_inches='tight', dpi=500)
-if show:
-    plt.show()
-plt.close()
-
-plt.figure(figsize=figsize)
-plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
-plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
-plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
-plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
-#plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
-#plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
-plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
-plt.xlim(0, np.min(np.array([1,np.max(rho**2*1.2)])))
-plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
-plt.tick_params(axis="both", labelsize=ticksize)
-plt.legend(fontsize=titlesize)
-plt.tight_layout()
-if save:
-    plt.savefig(f"fidelity_distribution{pdf_str}", bbox_inches='tight', dpi=500)
-if show:
-    plt.show()
-plt.close()
+    plt.figure(figsize=figsize)
+    plt.plot(rho_arr**2, F_CSO, color="red", label="CSO")
+    plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
+    plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
+    plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
+    #plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
+    #plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
+    plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
+    plt.xlim(0, np.min(np.array([1,np.max(rho**2*1.2)])))
+    plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
+    plt.tick_params(axis="both", labelsize=ticksize)
+    plt.legend(fontsize=titlesize)
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"fidelity_distribution{pdf_str}", bbox_inches='tight', dpi=500)
+    if show:
+        plt.show()
+    plt.close()
 
 
-plt.figure(figsize=figsize)
-hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid") #, histtype="barstacked")
-#plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
-#plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
-plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
-plt.title(f"Fidelity distribution (N={N}, M={M})",fontsize=titlesize)
-plt.tick_params(axis="both", labelsize=ticksize)
-plt.yscale("log")
-plt.legend(fontsize=titlesize)
-plt.tight_layout()
-if save:
-    plt.savefig(f"fidelity_hist{pdf_str}", bbox_inches='tight', dpi=500)
-if show:
-    plt.show()
-plt.close()
+    plt.figure(figsize=figsize)
+    hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid") #, histtype="barstacked")
+    #plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+    #plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+    plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
+    plt.title(f"Fidelity distribution (N={N}, M={M})",fontsize=titlesize)
+    plt.tick_params(axis="both", labelsize=ticksize)
+    plt.yscale("log")
+    plt.legend(fontsize=titlesize)
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"fidelity_hist{pdf_str}", bbox_inches='tight', dpi=500)
+    if show:
+        plt.show()
+    plt.close()
 
 plt.figure(figsize=figsize)
 plt.plot(s_arr, P_ideal_marked, label=r"$P_S$", color="blue")

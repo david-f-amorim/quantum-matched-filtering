@@ -5,17 +5,20 @@ from matplotlib import rcParams
 
 #----- VARIABLES -----
 
-k = 100
-rho = 0.1
+k = 10
+rho = 0.5
 
 def theta(j): 
-    j_star = int(0.5 * k * (1+ rho))
+    q = 0.25
+    j_min =  int(0.5 * k * (1+ rho - q))
+    j_max =  int(0.5 * k * (1+ rho + q))
 
-    if j >= j_star:
+    if j >= j_max: 
         return np.pi 
-    else:
+    elif j <= j_min:
         return 0
-
+    else:
+        return np.pi * ( j - j_min)/(q*k) 
 
 #----- CONTROLS -----
 
