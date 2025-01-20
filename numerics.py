@@ -39,7 +39,7 @@ if j_star <0:
     sys.exit()
 
 def theta(j): 
-    q = 0.01
+    q = 0.5
     j_min =  int(0.5 * k * (1+ rho - q))
     j_max =  int(0.5 * k * (1+ rho + q))
 
@@ -108,7 +108,8 @@ else:
     if F[-1]==0:
         arg[-1]=arg[-2]
 
-    F_CSO = fidelities    
+    F_CSO = fidelities  
+    F_CSO_inverse = np.exp(-1j * arg) * F  
  
 if use_theta1 == False:
     ## get actual epsilon (defined as F_CSO at threshold)
@@ -135,7 +136,10 @@ else:
 for i in np.arange(s):
 
     c_ideal[:,i+1] = 2* np.mean(c_ideal[:,i]*F_ideal)- c_ideal[:,i]*F_ideal 
-    c_CSO[:,i+1] = 2* np.mean(c_CSO[:,i]*F_CSO)- c_CSO[:,i]*F_CSO
+    if i % 2 == 0 or alternate==False:
+        c_CSO[:,i+1] = 2* np.mean(c_CSO[:,i]*F_CSO)- c_CSO[:,i]*F_CSO
+    else:
+        c_CSO[:,i+1] = 2* np.mean(c_CSO[:,i]*F_CSO_inverse)- c_CSO[:,i]*F_CSO_inverse    
 
 ## extract useful quantities:
 c_CSO_norm = c_CSO / np.sqrt(np.sum(np.abs(c_CSO)**2, axis =0))
