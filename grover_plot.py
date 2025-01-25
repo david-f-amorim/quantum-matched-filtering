@@ -59,6 +59,8 @@ def arrowed_spines(fig, ax):
 ticklabelpad_x = rcParams['xtick.major.pad']
 ticklabelpad_y = rcParams['ytick.major.pad']
 
+#### INITIAL #####
+
 x = np.linspace(0,0.75,100)
 plt.xlim(0,1)
 plt.ylim(-0.5,1)
@@ -86,6 +88,162 @@ arrowed_spines(fig, ax)
 plt.tight_layout()
 if save:
     plt.savefig(f"Grover_initial{pdf_str}", bbox_inches='tight', dpi=500)
+if show:
+    plt.show()
+plt.close() 
+
+#### ORACLE #####
+
+x = np.linspace(0,0.75,100)
+plt.xlim(0,1)
+plt.ylim(-0.5,1)
+plt.plot(x,0.3*x, color="tab:blue", ls="--")
+plt.plot(x,-0.3*x, color="tab:red")
+
+fig = plt.gcf()
+fig.set_facecolor('white') 
+ax = plt.gca()
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=0, theta2=17.44, color="tab:blue"))
+
+plt.annotate(r'$\theta$', xy=(0.35,0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+plt.annotate(r'$\vert \Psi \rangle$', xy=(0.83,0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=-17.44, theta2=0, color="tab:red"))
+
+plt.annotate(r'$\theta$', xy=(0.35,-0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\mathcal{U}_O \vert \Psi \rangle$', xy=(0.83,-0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\vert u \rangle$', xy=(1.05,0.35), xytext=(0, -ticklabelpad_x), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+plt.annotate(r'$\vert m \rangle$', xy=(-0.1,1), xytext=(0, -ticklabelpad_y), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+
+arrowed_spines(fig, ax)
+
+plt.tight_layout()
+if save:
+    plt.savefig(f"Grover_oracle{pdf_str}", bbox_inches='tight', dpi=500)
+if show:
+    plt.show()
+plt.close() 
+
+#### FINAL #####
+
+x = np.linspace(0,0.75,100)
+plt.xlim(0,1)
+plt.ylim(-0.5,1)
+plt.plot(x,0.3*x, color="tab:blue", ls="--")
+plt.plot(x,-0.3*x, color="tab:red", ls="--")
+plt.plot(x,0.9*x, color="limegreen")
+
+fig = plt.gcf()
+fig.set_facecolor('white') 
+ax = plt.gca()
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=0, theta2=17.44, color="tab:blue"))
+
+plt.annotate(r'$\theta$', xy=(0.35,0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+plt.annotate(r'$\vert \Psi \rangle$', xy=(0.83,0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+ax.add_patch(patches.Arc((0,0), 1,1,angle= 0, theta1=17.44, theta2=2.45*17.44, color="limegreen"))
+
+plt.annotate(r'$2\theta$', xy=(0.35,0.2), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="limegreen")
+
+plt.annotate(r'$ \mathcal{G} \vert \Psi \rangle$', xy=(0.83,0.8*0.9), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="limegreen")
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=-17.44, theta2=0, color="tab:red"))
+
+plt.annotate(r'$\theta$', xy=(0.35,-0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\mathcal{U}_O \vert \Psi \rangle$', xy=(0.83,-0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\vert u \rangle$', xy=(1.05,0.35), xytext=(0, -ticklabelpad_x), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+plt.annotate(r'$\vert m \rangle$', xy=(-0.1,1), xytext=(0, -ticklabelpad_y), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+
+arrowed_spines(fig, ax)
+
+plt.tight_layout()
+if save:
+    plt.savefig(f"Grover_final{pdf_str}", bbox_inches='tight', dpi=500)
+if show:
+    plt.show()
+plt.close() 
+
+
+#### SECOND #####
+
+x = np.linspace(0,0.75,100)
+x2 = np.linspace(0,1/(1.5)-0.1,100)
+plt.xlim(0,1)
+plt.ylim(-0.5,1)
+plt.plot(x,0.3*x, color="tab:blue", ls="--")
+plt.plot(x,-0.3*x, color="tab:red", ls="--")
+plt.plot(x,0.9*x, color="limegreen", ls="--")
+plt.plot(x2,1.5*x2, color="tab:purple")
+
+fig = plt.gcf()
+fig.set_facecolor('white') 
+ax = plt.gca()
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=0, theta2=17.44, color="tab:blue"))
+
+plt.annotate(r'$\theta$', xy=(0.35,0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+plt.annotate(r'$\vert \Psi \rangle$', xy=(0.83,0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
+
+ax.add_patch(patches.Arc((0,0), 1.2,1.2,angle= 0, theta1=2.45*17.44, theta2=3.3*17.44, color="tab:purple"))
+
+plt.annotate(r'$2\theta$', xy=(0.35,0.42), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:purple")
+
+plt.annotate(r'$ \mathcal{G}^2 \vert \Psi \rangle$', xy=(0.65,0.62*1.5), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:purple")
+
+
+ax.add_patch(patches.Arc((0,0), 1,1,angle= 0, theta1=17.44, theta2=2.45*17.44, color="limegreen"))
+
+plt.annotate(r'$2\theta$', xy=(0.35,0.2), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="limegreen")
+
+plt.annotate(r'$ \mathcal{G} \vert \Psi \rangle$', xy=(0.83,0.8*0.9), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="limegreen")
+
+ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=-17.44, theta2=0, color="tab:red"))
+
+plt.annotate(r'$\theta$', xy=(0.35,-0.05), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\mathcal{U}_O \vert \Psi \rangle$', xy=(0.83,-0.8*0.3), xytext=(0,0), ha='center', va='center',
+            xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:red")
+
+plt.annotate(r'$\vert u \rangle$', xy=(1.05,0.35), xytext=(0, -ticklabelpad_x), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+plt.annotate(r'$\vert m \rangle$', xy=(-0.1,1), xytext=(0, -ticklabelpad_y), ha='center', va='center',
+            xycoords='axes fraction', textcoords='offset points', fontsize="xx-large")
+
+arrowed_spines(fig, ax)
+
+plt.tight_layout()
+if save:
+    plt.savefig(f"Grover_second{pdf_str}", bbox_inches='tight', dpi=500)
 if show:
     plt.show()
 plt.close() 
