@@ -3,7 +3,7 @@ from scipy.special import betainc
 from scipy.stats import binom  
 import matplotlib.pyplot as plt 
 from matplotlib import rcParams
-import sys
+
 
 #----- CONTROLS -----
 
@@ -11,9 +11,9 @@ show =True
 save = True 
 pdf = True
 
-k_plot = False
-ck_plot = False 
-rho_plot = False 
+k_plot = True
+ck_plot = True
+rho_plot = True
 
 CSC_plot = True 
 
@@ -58,6 +58,7 @@ if rho_plot:
 #----- PLOTTING -----
 rcParams['mathtext.fontset'] = 'stix' 
 rcParams['font.family'] = 'STIXGeneral' 
+rcParams["text.usetex"] = True
 
 width=0.75 
 fontsize=28 
@@ -172,12 +173,12 @@ if CSC_plot:
 
 
     #####
-    k = 300
+    k = 30 # 300
     j_star = k / 2
     rho = 0.2
 
     p = 0.5*(1+rho)
-    x = np.arange(0, k, step=3)
+    x = np.arange(0, k, step=1) # step =3
     y = binom.pmf(x,k,p)
     
     ### BEFORE PLOT ###

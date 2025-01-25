@@ -8,6 +8,7 @@ show= True
 
 rcParams['mathtext.fontset'] = 'stix' 
 rcParams['font.family'] = 'STIXGeneral' 
+rcParams["text.usetex"] = True
 
 width=0.75 
 fontsize=28 
