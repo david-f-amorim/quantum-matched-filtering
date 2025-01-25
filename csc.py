@@ -1,5 +1,5 @@
 import numpy as np 
-from scipy import stats 
+from scipy.special import betainc  
 import matplotlib.pyplot as plt 
 from matplotlib import rcParams
 

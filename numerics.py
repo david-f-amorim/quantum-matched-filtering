@@ -21,7 +21,8 @@ pdf_str=".pdf" if pdf else ""
 N = 10000
 rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
-use_theta1 = True 
+use_theta1 = False 
+alternate = True 
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
@@ -39,7 +40,7 @@ if j_star <0:
     sys.exit()
 
 def theta(j): 
-    q = 0.5
+    q = 0.3
     j_min =  int(0.5 * k * (1+ rho - q))
     j_max =  int(0.5 * k * (1+ rho + q))
 
@@ -78,14 +79,8 @@ if M == 0:
 D = np.sum( (rho_arr**2 >= rho**2- 2 * c(k)/ np.sqrt(k)) * (rho_arr**2 < rho**2) )
 delta = D / N
 
-## get number of iterations 
+## get number of iterations    
 s = int(np.pi /4 * np.sqrt(N/M))
-
-## print relevant info 
-
-print("----------------------------------")
-print(f"M/N:\t{M/N: .3e}")
-print(f"s: \t{s}")
 
 ## get ideal Grover fidelities 
 F_ideal = np.ones(N)-2* (rho_arr**2 >= rho**2)
@@ -110,7 +105,11 @@ else:
 
     F_CSO = fidelities  
     F_CSO_inverse = np.exp(-1j * arg) * F  
- 
+
+    #ang = 0.5 * np.arccos( np.abs(np.sum(np.array([np.exp(1j *theta(j)) for j in np.arange(N)]))) /N )
+    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
+    s = int(np.pi/4 / ang)
+    
 if use_theta1 == False:
     ## get actual epsilon (defined as F_CSO at threshold)
     epsilon_actual = F_CSO[np.where(rho_arr == np.min(rho_arr[np.where(rho_arr**2 >= rho**2)]))][0] +1  
@@ -136,7 +135,7 @@ else:
 for i in np.arange(s):
 
     c_ideal[:,i+1] = 2* np.mean(c_ideal[:,i]*F_ideal)- c_ideal[:,i]*F_ideal 
-    if i % 2 == 0 or alternate==False:
+    if i % 2 == 0 or alternate==False or use_theta1==False:
         c_CSO[:,i+1] = 2* np.mean(c_CSO[:,i]*F_CSO)- c_CSO[:,i]*F_CSO
     else:
         c_CSO[:,i+1] = 2* np.mean(c_CSO[:,i]*F_CSO_inverse)- c_CSO[:,i]*F_CSO_inverse    
@@ -158,19 +157,18 @@ for i in np.arange(s+1):
 Pi = P_CSO_marked*(1 - P_failure)
 
 # print relevant info 
-
+print("----------------------------------")
+print(f"M/N:\t{M/N: .3e}")
+print(f"s: \t{s}")
 print("----------------------------------")
 print(f"P*_S:\t{P_CSO_marked[-1]:.3f}")
 print(f"Pi:\t{Pi[-1]:.3f}")
 print(f"P_S:\t{P_ideal_marked[-1]:.3f}")
 print(f"P_T:\t{P_failure[-1]:.3f}")
-
 print("----------------------------------")
 print(f"Delta P_S:\t{P_ideal_marked[-1]-P_CSO_marked[-1]:.3f}")
 print(f"Delta Pi:\t{P_ideal_marked[-1]-Pi[-1]:.3f}")
 print("==================================")
-
-
 
 ######
 s_arr = np.arange(s+1)
