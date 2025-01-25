@@ -11,11 +11,11 @@ show =True
 save = True 
 pdf = True
 
-k_plot = True
+k_plot = False
 ck_plot = True
 rho_plot = True
 
-CSC_plot = True 
+CSC_plot = False
 
 #----- CALCULATIONS -----
 N = 1000
@@ -98,7 +98,7 @@ if ck_plot:
 
     min, max = plt.ylim()
     plt.ylim(min, max)
-    plt.vlines(x=rho, ymin=min, ymax=max, colors="black", label=r'$\rho_{thr}$')
+    plt.vlines(x=rho, ymin=min, ymax=max, colors="black", label=r'$\rho_{\mathrm{thr}}$')
     plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
     plt.ylabel(r'$F_i$',fontsize=fontsize)
     plt.tick_params(axis="both", labelsize=ticksize)
@@ -117,7 +117,7 @@ if rho_plot:
 
     plt.figure(figsize=figsize)
     for i in np.arange(len(rho_arr)):
-        plt.plot(overlaps, fidelities_rho[i], color=colours[i], label=r'$\rho_{thr}=$'f'{labels[i]}', ls=styles[i])
+        plt.plot(overlaps, fidelities_rho[i], color=colours[i], label=r'$\rho_{\mathrm{thr}}=$'f'{labels[i]}', ls=styles[i])
     plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
     plt.ylabel(r'$F_i$',fontsize=fontsize)
     plt.tick_params(axis="both", labelsize=ticksize)
