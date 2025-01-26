@@ -10,7 +10,7 @@ k = 100
 rho = 0.5
 
 def theta(j): 
-    q = 0
+    q = 0.1
     j_min =  int(0.5 * k * (1+ rho - q))
     j_max =  int(0.5 * k * (1+ rho + q))
 
@@ -49,9 +49,9 @@ rcParams['font.family'] = 'STIXGeneral'
 rcParams["text.usetex"] = True 
 
 width=0.75 
-fontsize=28 
+fontsize=1.3*28 
 titlesize=32
-ticksize=22
+ticksize=1.3*22
 figsize=(10,6)
 pdf_str=".pdf" if pdf else ""
 
