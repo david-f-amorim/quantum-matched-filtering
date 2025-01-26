@@ -1,5 +1,5 @@
 import numpy as np 
-from scipy.special import betainc  
+from scipy.special import betainc, binom  
 import matplotlib.pyplot as plt 
 from matplotlib import rcParams
 
@@ -34,7 +34,7 @@ fidelities = np.zeros(N, dtype="complex")
 
 for i in np.arange(N):
     for j in np.arange(k+1):
-        fidelities[i]+=np.exp(1j * theta(j)) * stats.binom.pmf(j,k,probs[i])
+        fidelities[i]+=np.exp(1j * theta(j)) * binom.pmf(j,k,probs[i])
 
 F = np.abs(fidelities)
 arg = np.angle(fidelities)

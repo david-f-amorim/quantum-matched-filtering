@@ -12,10 +12,11 @@ save = True
 pdf = True
 
 k_plot = False
-ck_plot = True
-rho_plot = True
+ck_plot = False
+rho_plot = False
 
 CSC_plot = False
+CSC_phase_plot =True 
 
 #----- CALCULATIONS -----
 N = 1000
@@ -221,4 +222,101 @@ if CSC_plot:
         plt.show()
     plt.close() 
 
+if CSC_phase_plot:
+
+    def arrowed_spines2(fig, ax,ax2):
+
+        xmin, xmax = ax.get_xlim() 
+        ymin, ymax = ax.get_ylim()
+        ymin2, ymax2 = ax2.get_ylim()
+
+        ymin = min(ymin, ymin2)
+        ymax=max(ymax,ymax2)
+
+        # removing the default axis on all sides:
+        for side in ['bottom','right','top','left']:
+            ax.spines[side].set_visible(False)
+            ax2.spines[side].set_visible(False)
+
+        # removing the axis ticks
+        plt.xticks([]) # labels 
+        plt.yticks([])
+        ax.xaxis.set_ticklabels([])
+        ax.yaxis.set_ticklabels([])
+        ax2.xaxis.set_ticklabels([])
+        ax2.yaxis.set_ticklabels([])
+        ax.xaxis.set_ticks_position('none') # tick markers
+        ax.yaxis.set_ticks_position('none')
+        ax2.xaxis.set_ticks_position('none') # tick markers
+        ax2.yaxis.set_ticks_position('none')
+
+        # get width and height of axes object to compute 
+        # matching arrowhead length and width
+        dps = fig.dpi_scale_trans.inverted()
+        bbox = ax.get_window_extent().transformed(dps)
+        width, height = bbox.width, bbox.height
+
+        # manual arrowhead width and length
+        hw = 1./20.*(ymax-ymin) 
+        hl = 1./20.*(xmax-xmin)
+        lw = 1. # axis line width
+        ohg = 0.3 # arrow overhang
+
+        # compute matching arrowhead length and width
+        yhw = hw/(ymax-ymin)*(xmax-xmin)* height/width 
+        yhl = hl/(xmax-xmin)*(ymax-ymin)* width/height
+
+        # draw x and y axis
+        ax.arrow(xmin, 0, xmax-xmin, 0., fc='k', ec='k', lw = lw, 
+                head_width=hw, head_length=hl, overhang = ohg, 
+                length_includes_head= True, clip_on = False) 
+
+        ax.arrow(0, ymin, 0., ymax-ymin, fc='k', ec='k', lw = lw, 
+                head_width=yhw, head_length=yhl, overhang = ohg, 
+                length_includes_head= True, clip_on = False)
+        
+        ax2.arrow(xmax - yhw-ohg*0.9, ymin, 0., ymax-ymin, fc='k', ec='k', lw = lw, 
+                head_width=yhw, head_length=yhl, overhang = ohg, 
+                length_includes_head= True, clip_on = False)
+
+
+    #####
+    k = 30 # 300
+    j_star = k / 2
+    rho = 0.2
+
+    p = 0.5*(1+rho)
+    x = np.arange(0, k, step=1) # step =3
+    y = binom.pmf(x,k,p)
     
+    plt.figure(figsize=figsize)
+    plt.scatter(x , np.sqrt(y),color="tab:blue")
+    plt.vlines(x, 0, np.sqrt(y),colors="tab:blue")
+    
+    plt.xlim(0,k+1)
+    
+    fig = plt.gcf()
+    fig.set_facecolor('white') 
+    ax = plt.gca()
+
+    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=fontsize)
+    plt.ylabel(r'Amplitude',fontsize=fontsize,color='tab:blue')
+   
+    ax2 = ax.twinx()  
+    ax2.set_ylabel(r'Phase', color='tab:red', fontsize=fontsize,labelpad=-7) 
+    x2= np.linspace(0,k,1000)
+
+    ## standard 
+    #ax2.plot(x2,np.zeros(len(x2))+ 0.4 * (x2 >= j_star), color='tab:red')
+    ## linear gradient 
+    q = 0.1
+    ax2.plot(x2,np.zeros(len(x2))+ 0.4 * (x2 -j_star + q*k) / (2*q*k) * ( (x2 >= j_star- q*k) * (x2 < j_star+ q*k))  + 0.4 * (x2 >= j_star+ q*k), color='tab:red') 
+    
+    arrowed_spines2(fig,ax,ax2)
+
+    plt.tight_layout()
+    if save:
+        plt.savefig(f"CSC_plot_phase{pdf_str}", bbox_inches='tight', dpi=500)
+    if show:
+        plt.show()
+    plt.close() 
