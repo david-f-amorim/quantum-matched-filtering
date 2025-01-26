@@ -15,8 +15,8 @@ k_plot = False
 ck_plot = False
 rho_plot = False
 
-CSC_plot = False
-CSC_phase_plot =True 
+CSC_plot = True
+CSC_phase_plot =False
 
 #----- CALCULATIONS -----
 N = 1000
@@ -190,8 +190,8 @@ if CSC_plot:
     fig = plt.gcf()
     fig.set_facecolor('white') 
     ax = plt.gca()
-    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=fontsize)
-    plt.ylabel(r'Amplitude',fontsize=fontsize)
+    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=1.3*fontsize)
+    plt.ylabel(r'Amplitude',fontsize=1.3*fontsize)
     arrowed_spines(fig, ax)
 
     plt.tight_layout()
@@ -211,8 +211,8 @@ if CSC_plot:
     fig = plt.gcf()
     fig.set_facecolor('white') 
     ax = plt.gca()
-    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=fontsize)
-    plt.ylabel(r'Amplitude',fontsize=fontsize)
+    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=1.3*fontsize)
+    plt.ylabel(r'Amplitude',fontsize=1.3*fontsize)
     arrowed_spines(fig, ax)
 
     plt.tight_layout()
@@ -299,18 +299,18 @@ if CSC_phase_plot:
     fig.set_facecolor('white') 
     ax = plt.gca()
 
-    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=fontsize)
-    plt.ylabel(r'Amplitude',fontsize=fontsize,color='tab:blue')
+    plt.xlabel(r'$\vert j \rangle \vert \Omega_j \rangle$',fontsize=1.3*fontsize)
+    plt.ylabel(r'Amplitude',fontsize=1.3*fontsize,color='tab:blue')
    
     ax2 = ax.twinx()  
-    ax2.set_ylabel(r'Phase', color='tab:red', fontsize=fontsize,labelpad=-7) 
+    ax2.set_ylabel(r'Phase', color='tab:red', fontsize=1.3*fontsize,labelpad=-7) 
     x2= np.linspace(0,k,1000)
 
     ## standard 
-    #ax2.plot(x2,np.zeros(len(x2))+ 0.4 * (x2 >= j_star), color='tab:red')
+    #ax2.plot(x2,0.05*np.ones(len(x2))+ 0.4 * (x2 >= j_star), color='tab:red')
     ## linear gradient 
     q = 0.1
-    ax2.plot(x2,np.zeros(len(x2))+ 0.4 * (x2 -j_star + q*k) / (2*q*k) * ( (x2 >= j_star- q*k) * (x2 < j_star+ q*k))  + 0.4 * (x2 >= j_star+ q*k), color='tab:red') 
+    ax2.plot(x2,0.05*np.ones(len(x2))+ 0.4 * (x2 -j_star + q*k) / (2*q*k) * ( (x2 >= j_star- q*k) * (x2 < j_star+ q*k))  + 0.4 * (x2 >= j_star+ q*k), color='tab:red') 
     
     arrowed_spines2(fig,ax,ax2)
 
