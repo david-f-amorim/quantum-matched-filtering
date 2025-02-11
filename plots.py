@@ -11,7 +11,7 @@ show =True
 save = True 
 pdf = True
 
-k_plot = False
+k_plot = True
 ck_plot = False
 rho_plot = False
 
@@ -19,7 +19,7 @@ CSC_plot = False
 CSC_phase_plot =False
 
 error_plot = False 
-gauss_plot = True 
+gauss_plot = False 
 
 #----- CALCULATIONS -----
 N = 1000
@@ -68,12 +68,12 @@ width=0.75
 fontsize=28 
 titlesize=32
 ticksize=22
-figsize=(10,6)
+figsize=(10,6) # 10,6 (9,8) for rescaled
 pdf_str=".pdf" if pdf else ""
 
 if k_plot:
     colours = ["tab:blue", "limegreen","tab:red", "Black"]
-    styles = ["solid", "dashed", "dashdot", "solid"]
+    styles = ["solid", "solid", "solid", "solid"]
     labels = [r"$10$", r"$10^{2}$", r"$10^{3}$"]
 
     plt.figure(figsize=figsize)
@@ -93,12 +93,12 @@ if k_plot:
 
 if ck_plot:
     colours = ["tab:blue", "limegreen","tab:red", ]
-    styles = ["solid", "dashed", "dashdot", ]
-    labels = [r"$0$", r"$k^{0.1}$", r"$k^{0.2}$"]
+    styles = ["solid", "solid", "solid", ]
+    labels = [r"$0$", r"$k^{-0.4}$", r"$k^{-0.3}$"]
 
     plt.figure(figsize=figsize)
     for i in np.arange(len(ck_arr)):
-        plt.plot(overlaps, fidelities_ck[i], color=colours[i], label=r'$c(k)=$'f'{labels[i]}', ls=styles[i])
+        plt.plot(overlaps, fidelities_ck[i], color=colours[i], label=r'$q(k)=$'f'{labels[i]}', ls=styles[i])
 
     min, max = plt.ylim()
     plt.ylim(min, max)
@@ -116,7 +116,7 @@ if ck_plot:
 
 if rho_plot:
     colours = ["tab:blue", "limegreen","tab:red", "black"]
-    styles = ["solid", "dashed", "dashdot", "solid"]
+    styles = ["solid", "solid", "solid", "solid"]
     labels = [r"$0.05$", r"$0.1$", r"$0.3$", r"$0.5$"]
 
     plt.figure(figsize=figsize)

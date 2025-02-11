@@ -21,7 +21,7 @@ pdf_str=".pdf" if pdf else ""
 N = 10000
 rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
-use_theta1 = False 
+use_theta1 = True 
 alternate = True 
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
@@ -40,17 +40,12 @@ if j_star <0:
     sys.exit()
 
 def theta(j): 
-    q = 0.3
+    q = 0.001
     j_min =  int(0.5 * k * (1+ rho - q))
     j_max =  int(0.5 * k * (1+ rho + q))
 
-    if j >= j_max: 
-        return np.pi 
-    elif j <= j_min:
-        return 0
-    else:
-        return np.pi * ( j - j_min)/(q*k)     
-
+    return np.pi * (j >= j_max) + 0 * (j < j_min) + np.pi * ( j - j_min)/(q*k) * ( j < j_max) * (j >= j_min)   
+  
 print("==================================")
 print(f"k:\t{k}")
 print(f"j_star:\t{j_star}")
@@ -92,23 +87,25 @@ if use_theta1 == False:
     F_CSO = 2 * (1 - betainc(j_star,k-j_star +1, p_0_arr) ) -1
 else:
     fidelities = np.zeros(N, dtype="complex")
+    theta_arr = np.array([theta(j) for j in np.arange(k+1)])
+    phase_arr = np.cos(theta_arr)+1j * np.sin(theta_arr)
 
     for i in np.arange(N):
-        for j in np.arange(k+1):
-            fidelities[i]+=np.exp(1j * theta(j)) * stats.binom.pmf(j,k,p_0_arr[i])
+        arr = np.array([ phase_arr[j]* stats.binom._pmf(j,k,p_0_arr[i]) for j in np.arange(k+1)],dtype="complex")
+        fidelities[i]= np.sum(arr)
 
     F = np.abs(fidelities)
     arg = np.angle(fidelities)
 
-    if F[-1]==0:
-        arg[-1]=arg[-2]
-
     F_CSO = fidelities  
     F_CSO_inverse = np.exp(-1j * arg) * F  
 
-    #ang = 0.5 * np.arccos( np.abs(np.sum(np.array([np.exp(1j *theta(j)) for j in np.arange(N)]))) /N )
-    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
+    print( np.round(arg[-10:] / np.pi,3) )
+
+    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO / F)) /N)
+    #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
     s = int(np.pi/4 / ang)
+    #s = int(np.pi /4 * np.sqrt(N/M))
     
 if use_theta1 == False:
     ## get actual epsilon (defined as F_CSO at threshold)
@@ -169,6 +166,8 @@ print("----------------------------------")
 print(f"Delta P_S:\t{P_ideal_marked[-1]-P_CSO_marked[-1]:.3f}")
 print(f"Delta Pi:\t{P_ideal_marked[-1]-Pi[-1]:.3f}")
 print("==================================")
+
+sys.exit()
 
 ######
 s_arr = np.arange(s+1)
