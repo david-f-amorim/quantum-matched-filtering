@@ -21,7 +21,7 @@ pdf_str=".pdf" if pdf else ""
 N = 10000
 rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
-use_theta1 = True 
+use_theta1 = False
 alternate = True 
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
@@ -41,8 +41,8 @@ if j_star <0:
 
 def theta(j): 
     q = 0.001
-    j_min =  int(0.5 * k * (1+ rho - q))
-    j_max =  int(0.5 * k * (1+ rho + q))
+    j_min =  int(0.5 * k * (1+ rho**2 - q))
+    j_max =  int(0.5 * k * (1+ rho**2 + q))
 
     return np.pi * (j >= j_max) + 0 * (j < j_min) + np.pi * ( j - j_min)/(q*k) * ( j < j_max) * (j >= j_min)   
   
@@ -100,12 +100,9 @@ else:
     F_CSO = fidelities  
     F_CSO_inverse = np.exp(-1j * arg) * F  
 
-    print( np.round(arg[-10:] / np.pi,3) )
-
     ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO / F)) /N)
     #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
     s = int(np.pi/4 / ang)
-    #s = int(np.pi /4 * np.sqrt(N/M))
     
 if use_theta1 == False:
     ## get actual epsilon (defined as F_CSO at threshold)
