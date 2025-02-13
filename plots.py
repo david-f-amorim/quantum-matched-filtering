@@ -11,12 +11,12 @@ show =True
 save = True 
 pdf = True
 
-k_plot = True
+k_plot = False
 ck_plot = False
 rho_plot = False
 
 CSC_plot = False 
-CSC_phase_plot =False
+CSC_phase_plot =True
 
 error_plot = False 
 gauss_plot = False 
@@ -284,12 +284,12 @@ if CSC_phase_plot:
 
 
     #####
-    k = 30 # 300
+    k = 300 #30 
     j_star = k / 2
-    rho = 0.2
+    overlap = 0.2
 
-    p = 0.5*(1+rho)
-    x = np.arange(0, k, step=1) # step =3
+    p = 0.5*(1+overlap)
+    x = np.arange(0, k, step=3) # step =1
     y = binom.pmf(x,k,p)
     
     plt.figure(figsize=figsize)
@@ -312,9 +312,17 @@ if CSC_phase_plot:
     ## standard 
     #ax2.plot(x2,0.05*np.ones(len(x2))+ 0.4 * (x2 >= j_star), color='tab:red')
     ## linear gradient 
-    q = 0.1
-    ax2.plot(x2,0.05*np.ones(len(x2))+ 0.4 * (x2 -j_star + q*k) / (2*q*k) * ( (x2 >= j_star- q*k) * (x2 < j_star+ q*k))  + 0.4 * (x2 >= j_star+ q*k), color='tab:red') 
+    #q = 0.1
+    #ax2.plot(x2,0.05*np.ones(len(x2))+ 0.4 * (x2 -j_star + q*k) / (2*q*k) * ( (x2 >= j_star- q*k) * (x2 < j_star+ q*k))  + 0.4 * (x2 >= j_star+ q*k), color='tab:red') 
     
+    v_min = 2/2
+    v_max = 5/2
+    j_min= j_star - v_min * np.sqrt(k) 
+    j_max= j_star + v_max * np.sqrt(k) 
+
+    ax2.plot(x2,0.03*np.ones(len(x2))+ 0.22 * (x2 -j_min) / (j_max - j_min) * ( (x2 >= j_min) * (x2 < j_max))  + 0.22 * (x2 >= j_max), color='tab:red') 
+    ax2.vlines(x=[j_min, j_max, j_star], ymin=0, ymax=0.27, colors="tab:red", linestyles=["dashed", "dashed", "solid"], alpha=0.5)
+        
     arrowed_spines2(fig,ax,ax2)
 
     plt.tight_layout()

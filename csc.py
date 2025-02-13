@@ -6,20 +6,17 @@ from matplotlib import rcParams
 
 #----- VARIABLES -----
 
-k = 100
-rho = 0.5
+k = 1000
+rho = np.sqrt(0.05) # overlap, not overlap squared
+v_min = 0
+v_max = 0.0001
 
 def theta(j): 
-    q = 0.1
-    j_min =  int(0.5 * k * (1+ rho - q))
-    j_max =  int(0.5 * k * (1+ rho + q))
+    j_min =  int(0.5 * k * (1+ rho**2)- v_min * np.sqrt(k))
+    j_max =  int(0.5 * k * (1+ rho**2)+ v_max * np.sqrt(k))
 
-    if j >= j_max: 
-        return np.pi 
-    elif j <= j_min:
-        return 0
-    else:
-        return np.pi * ( j - j_min)/(q*k) 
+    return np.pi * (j >= j_max) + 0 * (j < j_min) + np.pi * ( j - j_min)/(np.sqrt(k)*(v_max + v_min)) * ( j < j_max) * (j >= j_min)   
+  
 
 #----- CONTROLS -----
 
@@ -40,9 +37,6 @@ for i in np.arange(N):
 F = np.abs(fidelities)
 arg = np.angle(fidelities)
 
-if F[-1]==0:
-    arg[-1]=arg[-2]
-
 #----- PLOTTING -----
 rcParams['mathtext.fontset'] = 'stix' 
 rcParams['font.family'] = 'STIXGeneral'
@@ -61,7 +55,7 @@ colour1 = 'tab:blue'
 ax1.set_xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$', fontsize=fontsize)
 ax1.set_ylabel(r'$\vert F_i \vert$', color=colour1, fontsize=fontsize)
 ax1.plot(overlaps, F, color=colour1)
-ax1.vlines(x=rho, ymin=0, ymax=1, linestyles="dashed", color="black")
+ax1.vlines(x=rho**2, ymin=0, ymax=1, linestyles="dashed", color="black")
 ax1.tick_params(axis='y', labelcolor=colour1, labelsize=ticksize)
 ax1.tick_params(axis='x', labelsize=ticksize)
 

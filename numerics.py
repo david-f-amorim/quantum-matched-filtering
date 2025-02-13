@@ -21,8 +21,11 @@ pdf_str=".pdf" if pdf else ""
 N = 10000
 rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
 k = 100
-use_theta1 = False
+use_theta1 = True
 alternate = True 
+
+v_min = 0.001
+v_max = 0.001
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
@@ -40,11 +43,10 @@ if j_star <0:
     sys.exit()
 
 def theta(j): 
-    q = 0.001
-    j_min =  int(0.5 * k * (1+ rho**2 - q))
-    j_max =  int(0.5 * k * (1+ rho**2 + q))
+    j_min =  int(0.5 * k * (1+ rho**2)- v_min * np.sqrt(k))
+    j_max =  int(0.5 * k * (1+ rho**2)+ v_max * np.sqrt(k))
 
-    return np.pi * (j >= j_max) + 0 * (j < j_min) + np.pi * ( j - j_min)/(q*k) * ( j < j_max) * (j >= j_min)   
+    return np.pi * (j >= j_max) + 0 * (j < j_min) + np.pi * ( j - j_min)/(np.sqrt(k)*(v_max + v_min)) * ( j < j_max) * (j >= j_min)   
   
 print("==================================")
 print(f"k:\t{k}")
@@ -100,8 +102,9 @@ else:
     F_CSO = fidelities  
     F_CSO_inverse = np.exp(-1j * arg) * F  
 
-    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO / F)) /N)
-    #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
+    #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO / F)) /N)
+    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
+    #ang = np.sqrt(M/N)
     s = int(np.pi/4 / ang)
     
 if use_theta1 == False:
@@ -164,10 +167,38 @@ print(f"Delta P_S:\t{P_ideal_marked[-1]-P_CSO_marked[-1]:.3f}")
 print(f"Delta Pi:\t{P_ideal_marked[-1]-Pi[-1]:.3f}")
 print("==================================")
 
-sys.exit()
+#print(f"${k}$ & ${P_CSO_marked[-1]:.3f}$ & ${P_failure[-1]:.3f}$ & $\\boldsymbol{{ {Pi[-1]:.3f} }}$ & ${s}$ \\\\ ")
 
 ######
 s_arr = np.arange(s+1)
+
+if use_theta1:
+    fig, ax1 = plt.subplots(figsize=figsize)
+
+    colour1 = 'tab:blue'
+    ax1.set_xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$', fontsize=fontsize)
+    ax1.set_ylabel(r'$\vert F_i \vert$', color=colour1, fontsize=fontsize)
+    ax1.scatter(rho_arr**2, F, color=colour1, marker="x")
+    ax1.vlines(x=rho**2, ymin=0, ymax=1, linestyles="dashed", color="black")
+    ax1.tick_params(axis='y', labelcolor=colour1, labelsize=ticksize)
+    ax1.tick_params(axis='x', labelsize=ticksize)
+
+    ax2 = ax1.twinx()  
+    colour2 = 'tab:red'
+    ax2.set_ylabel(r'arg($F_i$)', color=colour2, fontsize=fontsize) 
+    ax2.scatter(rho_arr**2, arg, color=colour2, marker="x")
+    ax2.tick_params(axis='y', labelcolor=colour2,labelsize=ticksize)
+    ax2.set_yticks(np.arange(- np.pi, np.pi+np.pi/2, step=(np.pi / 2)))
+    ax2.set_yticklabels([r'$-\pi$', r'$-0.5 \pi$', r'$0\pi$', r'$+0.5\pi$', r'$+\pi$'])
+
+    fig.tight_layout()  
+    if save:
+        plt.savefig(f"complex_F{pdf_str}", bbox_inches='tight', dpi=500)
+    if show:
+        plt.show()
+    plt.close() 
+
+sys.exit()
 
 if use_theta1==False:
     plt.figure(figsize=figsize)
