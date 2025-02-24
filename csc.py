@@ -6,10 +6,10 @@ from matplotlib import rcParams
 
 #----- VARIABLES -----
 
-k = 1000
-rho = np.sqrt(0.05) # overlap, not overlap squared
-v_min = 0
-v_max = 0.0001
+k = 100
+rho = np.sqrt(0.5) # overlap, not overlap squared
+v_min = 5/2
+v_max = 9/2
 
 def theta(j): 
     j_min =  int(0.5 * k * (1+ rho**2)- v_min * np.sqrt(k))

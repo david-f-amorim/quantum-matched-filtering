@@ -139,13 +139,15 @@ plt.close()
 
 x = np.linspace(0,0.75,100)
 plt.xlim(0,1)
-plt.ylim(-0.5,1)
-plt.plot(x,0.3*x, color="tab:blue", ls="--")
-plt.plot(x,-0.3*x, color="tab:red", ls="--")
+plt.ylim(-0.35,1)
+plt.plot(x,0.3*x, color="tab:blue")
+plt.plot(x,-0.3*x, color="tab:red")
 plt.plot(x,0.9*x, color="limegreen")
 
 fig = plt.gcf()
 fig.set_facecolor('white') 
+fig.set_figheight(4)
+fig.set_figwidth(5)
 ax = plt.gca()
 
 ax.add_patch(patches.Arc((0,0), 0.8,0.8,angle= 0, theta1=0, theta2=17.44, color="tab:blue"))

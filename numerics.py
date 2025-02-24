@@ -9,23 +9,24 @@ rcParams['mathtext.fontset'] = 'stix'
 rcParams['font.family'] = 'STIXGeneral' 
 
 width=0.75 
-fontsize=28 
+fontsize=28 * 1.3
 titlesize=32
-ticksize=22
-figsize=(10,10)
+ticksize=22 * 1.3
+figsize=(10,6)
 show =True
 save = True 
 pdf = True
 pdf_str=".pdf" if pdf else ""
 
 N = 10000
-rho = 0.85 # realistic: 0.15 ;  overlap, not overlap squared!
-k = 100
+rho = np.sqrt(0.5) # realistic: 0.15 ;  overlap, not overlap squared!
+k = 1000
 use_theta1 = True
 alternate = True 
 
-v_min = 0.001
-v_max = 0.001
+v = 5
+v_min = v/2
+v_max = v/2 + 0.0001 * (v==0)
 
 std = 0.3 * rho   # std of overlap distribution (assumed to be Gaussian with zero mean)
 
@@ -103,8 +104,8 @@ else:
     F_CSO_inverse = np.exp(-1j * arg) * F  
 
     #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO / F)) /N)
-    ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
-    #ang = np.sqrt(M/N)
+    #ang = 0.5 * np.arccos( np.abs(np.sum(F_CSO)) /N )
+    ang = np.sqrt(M/N)
     s = int(np.pi/4 / ang)
     
 if use_theta1 == False:
@@ -172,6 +173,23 @@ print("==================================")
 ######
 s_arr = np.arange(s+1)
 
+plt.figure(figsize=figsize)
+plt.plot(s_arr, P_ideal_marked, label=r"$P_S$", color="grey", ls="dashed")
+plt.plot(s_arr, P_CSO_marked, label=r"$P_S^*$", color="tab:red")
+plt.plot(s_arr, Pi, label=r'$\Pi$', color="tab:blue")
+plt.legend(fontsize=fontsize)
+plt.tick_params(axis="both", labelsize=ticksize)
+plt.xlabel(r"$s$",fontsize=fontsize)
+#plt.title("Success probability",fontsize=titlesize)
+plt.tight_layout()
+if save:
+    plt.savefig(f"probs_k{k}_v_{v}{pdf_str}", bbox_inches='tight', dpi=500)
+if show:
+    plt.show()
+plt.close()
+
+sys.exit()
+
 if use_theta1:
     fig, ax1 = plt.subplots(figsize=figsize)
 
@@ -197,8 +215,6 @@ if use_theta1:
     if show:
         plt.show()
     plt.close() 
-
-sys.exit()
 
 if use_theta1==False:
     plt.figure(figsize=figsize)
@@ -253,20 +269,7 @@ if use_theta1==False:
         plt.show()
     plt.close()
 
-plt.figure(figsize=figsize)
-plt.plot(s_arr, P_ideal_marked, label=r"$P_S$", color="blue")
-plt.plot(s_arr, P_CSO_marked, label=r"$P_S^*$", color="red")
-plt.plot(s_arr, Pi, label=r'$\Pi$', color="green")
-plt.legend(fontsize=fontsize)
-plt.tick_params(axis="both", labelsize=ticksize)
-plt.xlabel("Iteration",fontsize=fontsize)
-plt.title("Success probability",fontsize=titlesize)
-plt.tight_layout()
-if save:
-    plt.savefig(f"success_probability{pdf_str}", bbox_inches='tight', dpi=500)
-if show:
-    plt.show()
-plt.close()
+
 
 plt.figure(figsize=figsize)
 plt.plot(s_arr, s_arr * error[1], label=r'$s\Vert \mathcal{G} - \mathcal{G}^* \Vert_\Psi$', color="black", ls="--")
