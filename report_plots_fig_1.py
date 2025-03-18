@@ -140,8 +140,8 @@ plt.close()
 x = np.linspace(0,0.75,100)
 plt.xlim(0,1)
 plt.ylim(-0.35,1)
-plt.plot(x,0.3*x, color="tab:blue")
-plt.plot(x,-0.3*x, color="tab:red")
+plt.plot(x,0.3*x, color="tab:blue", ls="--")
+plt.plot(x,-0.3*x, color="tab:red",ls="--")
 plt.plot(x,0.9*x, color="limegreen")
 
 fig = plt.gcf()
@@ -212,7 +212,7 @@ plt.annotate(r'$\theta$', xy=(0.35,0.05), xytext=(0,0), ha='center', va='center'
 plt.annotate(r'$\vert \Psi \rangle$', xy=(0.83,0.8*0.3), xytext=(0,0), ha='center', va='center',
             xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:blue")
 
-ax.add_patch(patches.Arc((0,0), 1.2,1.2,angle= 0, theta1=2.45*17.44, theta2=3.3*17.44, color="tab:purple"))
+ax.add_patch(patches.Arc((0,0), 1.2,1.2,angle= 0, theta1=2.445*17.44, theta2=3.245*17.44, color="tab:purple"))
 
 plt.annotate(r'$2\theta$', xy=(0.35,0.42), xytext=(0,0), ha='center', va='center',
             xycoords='data', textcoords='offset points', fontsize="xx-large", color="tab:purple")

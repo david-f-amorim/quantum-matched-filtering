@@ -168,8 +168,6 @@ print(f"Delta P_S:\t{P_ideal_marked[-1]-P_CSO_marked[-1]:.3f}")
 print(f"Delta Pi:\t{P_ideal_marked[-1]-Pi[-1]:.3f}")
 print("==================================")
 
-#print(f"${k}$ & ${P_CSO_marked[-1]:.3f}$ & ${P_failure[-1]:.3f}$ & $\\boldsymbol{{ {Pi[-1]:.3f} }}$ & ${s}$ \\\\ ")
-
 ######
 s_arr = np.arange(s+1)
 
@@ -180,15 +178,12 @@ plt.plot(s_arr, Pi, label=r'$\Pi$', color="tab:blue")
 plt.legend(fontsize=fontsize)
 plt.tick_params(axis="both", labelsize=ticksize)
 plt.xlabel(r"$s$",fontsize=fontsize)
-#plt.title("Success probability",fontsize=titlesize)
 plt.tight_layout()
 if save:
     plt.savefig(f"probs_k{k}_v_{v}{pdf_str}", bbox_inches='tight', dpi=500)
 if show:
     plt.show()
 plt.close()
-
-sys.exit()
 
 if use_theta1:
     fig, ax1 = plt.subplots(figsize=figsize)
@@ -219,8 +214,7 @@ if use_theta1:
 if use_theta1==False:
     plt.figure(figsize=figsize)
     hist = plt.hist(rho_arr**2, color="blue")
-    #plt.plot(np.linspace(0,1,N)**2,np.max(hist[0])* np.exp(- (np.linspace(0,1,N) / std)**2/2 ), color="gray")
-    plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black") #, label=r'$\rho_\text{thr} - 2\frac{c(k)}{\sqrt{k}}$')
+    plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=0, ymax=np.max(hist[0]),linestyles="dashed", colors="black") 
     plt.vlines(x=rho**2, ymin=0, ymax=np.max(hist[0]), colors="black", label=r'$\rho_\text{thr}$')
     plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
     plt.title(f"Overlap distribution (N={N}, M={M})",fontsize=titlesize)
@@ -238,8 +232,6 @@ if use_theta1==False:
     plt.plot(rho_arr**2, F_ideal, color="blue", label="ideal")
     plt.vlines(x=rho**2- 2 * c(k)/ np.sqrt(k), ymin=-1, ymax=+1,linestyles="dashed", colors="black")
     plt.vlines(x=rho**2, ymin=-1, ymax=+1, colors="black")
-    #plt.hlines(y=-1+epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
-    #plt.hlines(y=1-epsilon_erfc, xmin=0, xmax=1, linestyles="dashed", colors="gray")
     plt.xlabel(r'$\vert \langle \psi | \phi_i \rangle \vert^2$',fontsize=fontsize)
     plt.xlim(0, np.min(np.array([1,np.max(rho**2*1.2)])))
     plt.title(f"Fidelity distribution (signed)",fontsize=titlesize)
@@ -252,11 +244,8 @@ if use_theta1==False:
         plt.show()
     plt.close()
 
-
     plt.figure(figsize=figsize)
-    hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid") #, histtype="barstacked")
-    #plt.vlines(x=-1+epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
-    #plt.vlines(x=1-epsilon_erfc, ymin=0, ymax=np.max(hf[0]), linestyles="dashed", colors="gray")
+    hf =plt.hist([F_CSO, F_ideal], color=["red","blue"], label=["CSO", "ideal"],bins=20, rwidth=0.6, align="mid")
     plt.xlabel(r'Fidelity (signed)',fontsize=fontsize)
     plt.title(f"Fidelity distribution (N={N}, M={M})",fontsize=titlesize)
     plt.tick_params(axis="both", labelsize=ticksize)
@@ -269,11 +258,8 @@ if use_theta1==False:
         plt.show()
     plt.close()
 
-
-
 plt.figure(figsize=figsize)
 plt.plot(s_arr, s_arr * error[1], label=r'$s\Vert \mathcal{G} - \mathcal{G}^* \Vert_\Psi$', color="black", ls="--")
-#plt.plot(s_arr, s_arr * 2 * np.sqrt(delta + epsilon_erfc), label=r'$s 2 \sqrt{\epsilon + \Delta}  $', color="gray", ls="--")
 plt.plot(s_arr, error, label=r'$\Vert \mathcal{G}^s - \mathcal{G}^{*s} \Vert_\Psi$', color="red")
 plt.plot(s_arr, -P_CSO_marked+P_ideal_marked, label=r'$\Delta P_S$', color="blue")
 plt.plot(s_arr, -P_CSO_marked*(1 - P_failure)+P_ideal_marked, label=r'$\Delta \Pi$', color="green")

@@ -4,10 +4,10 @@ from scipy.special import erf
 from matplotlib import rcParams
 
 k = 10000 
-rho = 0.05
 v_min = 3/2
 v_max = 7/2
-max_overlap = 0.1
+max_overlap = 0.01
+rho = max_overlap /2
 
 overlaps = np.linspace(0,max_overlap,1000,dtype=complex)
 
